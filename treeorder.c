@@ -1,125 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//링크 트리 노드 구조체 정의
-struct TreeNode {
-    int data;
-    struct TreeNode* left;
-    struct TreeNode* right;
-};
+typedef struct Node {
+    char data;
+    struct Node* left;
+    struct Node* right;
+} Node;
 
-// 새로운 노드를 생성하는 함수(링크)
-struct TreeNode* createNode(int data) {
-    struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+Node* newNode(char data) {
+    Node* node = (Node*)malloc(sizeof(Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
 }
 
-// 전위 순회 (Preorder Traversal) 함수 (링크)
-void preorderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        printf("%d ", root->data);
-        preorderTraversal(root->left);
-        preorderTraversal(root->right);
-    }
-}
+int nodeCount = 0;  // 전역 변수로 노드 카운트를 추적
 
-// 중위 순회 (Inorder Traversal) 함수 (링크)
-void inorderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        inorderTraversal(root->left);
-        printf("%d ", root->data);
-        inorderTraversal(root->right);
-    }
-}
+double evaluate(Node* root) {
+    if (!root) return 0;
 
-// 후위 순회 (Postorder Traversal) 함수 (링크)
-void postorderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        postorderTraversal(root->left);
-        postorderTraversal(root->right);
-        printf("%d ", root->data);
-    }
-}
+    nodeCount++;  // 노드 방문
 
-// 배열로 표현한 트리 전위 순회 함수
-void ArraypreorderTraversal(struct TreeNode* arr, int index, int size) {
-    if (index < size && arr[index].data != 0) {
-        printf("%d ", arr[index].data);
-        ArraypreorderTraversal(arr, 2 * index + 1, size); // 왼쪽 자식 노드
-        ArraypreorderTraversal(arr, 2 * index + 2, size); // 오른쪽 자식 노드
-    }
-}
+    if (root->data >= '0' && root->data <= '9') return root->data - '0';
 
-// 배열로 표현한 트리 중위 순회 함수
-void ArrayinorderTraversal(struct TreeNode* arr, int index, int size) {
-    if (index < size && arr[index].data != 0) {
-        ArrayinorderTraversal(arr, 2 * index + 1, size); // 왼쪽 자식 노드
-        printf("%d ", arr[index].data);
-        ArrayinorderTraversal(arr, 2 * index + 2, size); // 오른쪽 자식 노드
-    }
-}
+    double leftValue = evaluate(root->left);
+    double rightValue = evaluate(root->right);
 
-// 배열로 표현한 트리 후위 순회 함수
-void ArraypostorderTraversal(struct TreeNode* arr, int index, int size) {
-    if (index < size && arr[index].data != 0) {
-        ArraypostorderTraversal(arr, 2 * index + 1, size); // 왼쪽 자식 노드
-        ArraypostorderTraversal(arr, 2 * index + 2, size); // 오른쪽 자식 노드
-        printf("%d ", arr[index].data);
+    printf("%.2f %c %.2f = ", leftValue, root->data, rightValue);
+
+    switch (root->data) {
+    case '+':
+        printf("%.2f\n", leftValue + rightValue);
+        return leftValue + rightValue;
+    case '-':
+        printf("%.2f\n", leftValue - rightValue);
+        return leftValue - rightValue;
+    case '*':
+        printf("%.2f\n", leftValue * rightValue);
+        return leftValue * rightValue;
+    case '/':
+        printf("%.2f\n", leftValue / rightValue);
+        return leftValue / rightValue;
     }
+
+    return 0;
 }
 
 int main() {
-    // 링크로 표현한 트리 생성
-    struct TreeNode* root = createNode(1);
-    root->left = createNode(2);
-    root->right = createNode(7);
-    root->left->left = createNode(3);
-    root->left->right = createNode(6);
-    root->right->left = createNode(8);
-    root->right->right = createNode(9);
-    root->left->left->left = createNode(4);
-    root->left->left->right = createNode(5);
-    root->right->right->left = createNode(10);
-    root->right->right->right = createNode(11);
+    Node* root = newNode('+');
+    root->left = newNode('-');
+    root->right = newNode('9');
+    root->left->left = newNode('+');
+    root->left->right = newNode('/');
+    root->left->left->left = newNode('+');
+    root->left->left->right = newNode('*');
+    root->left->left->left->left = newNode('2');
+    root->left->left->left->right = newNode('3');
+    root->left->left->right->left = newNode('4');
+    root->left->left->right->right = newNode('5');
+    root->left->right->left = newNode('6');
+    root->left->right->right = newNode('7');
 
-    printf("<Linked Tree>\n");
-    printf("전위 순회");
-    preorderTraversal(root);
-    printf("\n\n");
-
-    printf("중위 순회");
-    inorderTraversal(root);
-    printf("\n\n");
-
-    printf("후위 순회");
-    postorderTraversal(root);
-    printf("\n\n");
-
-    // 배열로 표현한 트리
-    struct TreeNode arr[] = {
-        {1},
-        {2}, {7},
-        {3}, {6}, {8}, {9},
-        {4}, {5}, {0}, {0}, {0}, {0}, {10}, {11}
-    };
-
-    int size = sizeof(arr) / sizeof(arr[0]);
-
-    printf("<Array Tree>\n");
-    printf("전위 순회");
-    ArraypreorderTraversal(arr, 0, size);
-    printf("\n\n");
-
-    printf("중위 순회");
-    ArrayinorderTraversal(arr, 0, size);
-    printf("\n\n");
-
-    printf("후위 순회");
-    ArraypostorderTraversal(arr, 0, size);
-    printf("\n\n");
+    printf("수식의 값은 : %.2f 입니다.\n\n", evaluate(root));
+    printf("총 노드의 수는: %d 개 입니다.\n", nodeCount);
 
     return 0;
 }

@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+// 불린 타입 정의
+typedef enum { FALSE, TRUE } bool;
 
 //링크 트리 노드 구조체 정의
 struct TreeNode {

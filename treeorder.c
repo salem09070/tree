@@ -1,24 +1,207 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// 노드 구조체 정의
 typedef struct Node {
-    int data;
-    struct Node* left;
-    struct Node* right;
+    int data;               // 데이터 필드
+    struct Node* left;      // 왼쪽 자식 노드를 가리키는 포인터
+    struct Node* right;     // 오른쪽 자식 노드를 가리키는 포인터
 } Node;
 
-// 함수 프로토타입
-Node* createNode(int data);
-Node* insertRecursively(Node* root, int data, int* count);
-Node* deleteRecursively(Node* root, int data, int* count);
-int inorderTraversal(Node* root, int* count);
-int searchIteratively(Node* root, int data, int* count);
-Node* insertIteratively(Node* root, int data, int* count);
-Node* findMinValueNode(Node* root);
+Node* root = NULL;          // 트리의 루트 노드를 가리키는 포인터
+
+int visitedNodes = 0;       // 방문한 노드의 수
+
+// 새 노드 생성 함수
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// 특정 데이터를 가진 노드 검색 함수
+void search(int data) {
+    Node* temp = root;
+    visitedNodes = 0;
+
+    while (temp != NULL) {
+        visitedNodes++;
+        if (data == temp->data) {
+            printf("방문한 노드수 : %d .\n", visitedNodes);
+            return;
+        }
+        else if (data < temp->data) {
+            temp = temp->left;
+        }
+        else {
+            temp = temp->right;
+        }
+    }
+    printf("방문한 노드수 : %d .\n", visitedNodes);
+}
+
+// 재귀적으로 노드 삽입 함수
+Node* insertRecursive(Node* node, int data) {
+    visitedNodes++;
+
+    if (node == NULL) {
+        return createNode(data);
+    }
+
+    if (data < node->data) {
+        node->left = insertRecursive(node->left, data);
+    }
+    else if (data > node->data) {
+        node->right = insertRecursive(node->right, data);
+    }
+    return node;
+}
+
+// 재귀적으로 노드 삭제 함수
+Node* deleteRecursive(Node* node, int data) {
+    visitedNodes++;
+
+    if (node == NULL) return node;
+
+    if (data < node->data) {
+        node->left = deleteRecursive(node->left, data);
+    }
+    else if (data > node->data) {
+        node->right = deleteRecursive(node->right, data);
+    }
+    else {
+        if (node->left == NULL) {
+            Node* temp = node->right;
+            free(node);
+            return temp;
+        }
+        else if (node->right == NULL) {
+            Node* temp = node->left;
+            free(node);
+            return temp;
+        }
+
+        Node* temp = node->right;
+        while (temp->left != NULL) {
+            temp = temp->left;
+        }
+        node->data = temp->data;
+        node->right = deleteRecursive(node->right, temp->data);
+    }
+    return node;
+}
+
+// 중위 순회 함수
+void inorderTraversal(Node* node) {
+    if (node != NULL) {
+        inorderTraversal(node->left);
+        printf("%d ", node->data);
+        visitedNodes++;
+        inorderTraversal(node->right);
+    }
+}
+
+// 반복적으로 노드 삽입 함수
+void insertIterative(int data) {
+    Node* newNode = createNode(data);
+    Node* current = root;
+    Node* parent = NULL;
+
+    visitedNodes = 0;
+
+    while (current != NULL) {
+        visitedNodes++;
+        parent = current;
+
+        if (data < current->data) {
+            current = current->left;
+        }
+        else if (data > current->data) {
+            current = current->right;
+        }
+        else {
+            return;  // 중복 데이터
+        }
+    }
+
+    if (parent == NULL) {
+        root = newNode;
+    }
+    else if (data < parent->data) {
+        parent->left = newNode;
+    }
+    else {
+        parent->right = newNode;
+    }
+}
+
+// 반복적으로 노드 삭제 함수
+void deleteIterative(int data) {
+    if (root == NULL) return;
+
+    Node* current = root;
+    Node* parent = NULL;
+
+    visitedNodes = 0;
+
+    while (current != NULL && current->data != data) {
+        visitedNodes++;
+        parent = current;
+        if (data < current->data) {
+            current = current->left;
+        }
+        else {
+            current = current->right;
+        }
+    }
+
+    if (current == NULL) {
+        printf("Data not found.\n");
+        return;
+    }
+
+    if (current->left == NULL || current->right == NULL) {
+        Node* temp;
+        if (current->left == NULL) {
+            temp = current->right;
+        }
+        else {
+            temp = current->left;
+        }
+
+        if (parent == NULL) {
+            root = temp;
+        }
+        else if (parent->left == current) {
+            parent->left = temp;
+        }
+        else {
+            parent->right = temp;
+        }
+    }
+    else {
+        Node* temp = current->right;
+        Node* tempParent = current;
+        while (temp->left != NULL) {
+            tempParent = temp;
+            temp = temp->left;
+        }
+        current->data = temp->data;
+        if (tempParent->left == temp) {
+            tempParent->left = temp->right;
+        }
+        else {
+            tempParent->right = temp->right;
+        }
+    }
+    free(current);
+    printf("방문한 노드수 : %d .\n", visitedNodes);
+}
 
 int main() {
-    Node* root = NULL;
-    int visitedCount = 0;
+    char choice;
 
     // 초기 트리 구성
     root = createNode(60);
@@ -36,180 +219,78 @@ int main() {
     root->right->left->left->right = createNode(64);
     root->right->left->right = createNode(70);
 
-    char choice;
-    int data;
-    while (1) {
-        printf("메뉴를 선택해주세요 (s/i/d/t/I/D/q): ");
+    do {
+        printf("\nMenu:\n");
+        printf("s: 검색\n");
+        printf("i: 노드 추가\n");
+        printf("d: 노드삭제\n");
+        printf("t: 중위순회\n");
+        printf("I: 노드 추가(반복)\n");
+        printf("D: 노드 삭제(반복)\n");
+        printf("c: 종료\n");
+        printf("메뉴입력: ");
         scanf(" %c", &choice);
+
+        int data;
 
         switch (choice) {
         case 's':
             printf("검색할 값 입력: ");
             scanf("%d", &data);
-            if (searchIteratively(root, data, &visitedCount)) {
-                printf("검색 성공: %d \n", data);
-            }
-            else {
-                printf("%d 트리에 없습니다.\n", data);
-            }
-            printf("\n방문한 노드 수: %d\n", visitedCount);
-            visitedCount = 0; // 카운트 초기화
+            search(data);
+            inorderTraversal(root);
             break;
+
         case 'i':
             printf("삽입할 값 입력: ");
             scanf("%d", &data);
-            root = insertRecursively(root, data, &visitedCount);
-            printf("방문한 노드 수: %d\n", visitedCount);
-            visitedCount = 0; // 카운트 초기화
+            visitedNodes = 0;
+            root = insertRecursive(root, data);
+            printf("방문한 노드수 : %d .\n", visitedNodes);
+            inorderTraversal(root);
             break;
+
         case 'd':
+            printf("삭제 할 값 입력: ");
+            scanf("%d", &data);
+            visitedNodes = 0;
+            root = deleteRecursive(root, data);
+            printf("방문한 노드수 : %d .\n", visitedNodes);
+            inorderTraversal(root);
+            break;
+
+        case 't':
+            visitedNodes = 0;
+            inorderTraversal(root);
+            printf("\n");
+            printf("방문한 노드수 : %d .\n", visitedNodes);
+            break;
+
+        case 'I':
+            printf("삽입할 값 입력: ");
+            scanf("%d", &data);
+            visitedNodes = 0;
+            insertIterative(data);
+            printf("방문한 노드수 : %d .\n", visitedNodes);
+            inorderTraversal(root);
+            break;
+
+        case 'D':
             printf("삭제할 값 입력: ");
             scanf("%d", &data);
-            root = deleteRecursively(root, data, &visitedCount);
-            printf("방문한 노드 수: %d\n", visitedCount);
-            visitedCount = 0; // 카운트 초기화
+            visitedNodes = 0;
+            deleteIterative(data);
+            printf("방문한 노드수 : %d .\n", visitedNodes);
+            inorderTraversal(root);
             break;
-        case 't':
-            inorderTraversal(root, &visitedCount);
-            printf("\n방문한 노드 수: %d\n", visitedCount);
-            visitedCount = 0; // 카운트 초기화
+
+        case 'c':
             break;
-        case 'I':
-            printf("노드 추가(반복): ");
-            scanf("%d", &data);
-            root = insertIteratively(root, data, &visitedCount);
-            printf("\n방문한 노드 수: %d\n", visitedCount);
-            visitedCount = 0; // 카운트 초기화
-            break;
-        case 'D':
-            printf("노드 삭제(반복): ");
-            scanf("%d", &data);
-            // 반복적인 삭제 기능이 누락되어 있어, 재귀적인 삭제 함수를 사용하겠습니다.
-            root = deleteRecursively(root, data, &visitedCount);
-            printf("방문한 노드 수: %d\n", visitedCount);
-            visitedCount = 0; // 카운트 초기화
-            break;
-        case 'q':
-            return 0;
+
         default:
-            printf("올바르지 않은 선택입니다.\n");
+            printf("Invalid choice\n");
         }
-        printf("\n중위순회 결과: ");
-        inorderTraversal(root);
-        printf("\n");
-    }
+    } while (choice != 'c');
+
     return 0;
-}
-
-Node* createNode(int data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
-}
-
-Node* insertRecursively(Node* root, int data, int* count) {
-    (*count)++;
-    if (root == NULL) {
-        return createNode(data);
-    }
-    if (data < root->data) {
-        root->left = insertRecursively(root->left, data, count);
-    }
-    else if (data > root->data) {
-        root->right = insertRecursively(root->right, data, count);
-    }
-    return root;
-}
-
-Node* deleteRecursively(Node* root, int data, int* count) {
-    (*count)++;
-    if (root == NULL) return root;
-
-    if (data < root->data) {
-        root->left = deleteRecursively(root->left, data, count);
-    }
-    else if (data > root->data) {
-        root->right = deleteRecursively(root->right, data, count);
-    }
-    else {
-        if (root->left == NULL) {
-            Node* temp = root->right;
-            free(root);
-            return temp;
-        }
-        else if (root->right == NULL) {
-            Node* temp = root->left;
-            free(root);
-            return temp;
-        }
-        Node* temp = findMinValueNode(root->right);
-        root->data = temp->data;
-        root->right = deleteRecursively(root->right, temp->data, count);
-    }
-    return root;
-}
-
-int inorderTraversal(Node* root, int* count) {
-    if (root != NULL) {
-        inorderTraversal(root->left, count);
-        (*count)++;
-        printf("%d ", root->data);
-        inorderTraversal(root->right, count);
-    }
-    return 0;
-}
-
-int searchIteratively(Node* root, int data, int* count) {
-    while (root != NULL) {
-        (*count)++;
-        if (data < root->data) {
-            root = root->left;
-        }
-        else if (data > root->data) {
-            root = root->right;
-        }
-        else {
-            return 1;  // 노드 발견
-        }
-    }
-    return 0;  // 노드를 찾지 못함
-}
-
-Node* insertIteratively(Node* root, int data, int* count) {
-    Node* newNode = createNode(data);
-    if (root == NULL) {
-        return newNode;
-    }
-    Node* current = root;
-    Node* parent = NULL;
-    while (current != NULL) {
-        (*count)++;
-        parent = current;
-        if (data < current->data) {
-            current = current->left;
-        }
-        else if (data > current->data) {
-            current = current->right;
-        }
-        else {
-            return root;  // 중복 노드는 허용하지 않습니다.
-        }
-    }
-    if (data < parent->data) {
-        parent->left = newNode;
-    }
-    else {
-        parent->right = newNode;
-    }
-    return root;
-}
-
-Node* findMinValueNode(Node* root) {
-    Node* current = root;
-    while (current && current->left != NULL) {
-        current = current->left;
-    }
-    return current;
 }

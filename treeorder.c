@@ -1,125 +1,75 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-//링크 트리 노드 구조체 정의
-struct TreeNode {
-    int data;
-    struct TreeNode* left;
-    struct TreeNode* right;
-};
+#define SIZE 17
 
-// 새로운 노드를 생성하는 함수(링크)
-struct TreeNode* createNode(int data) {
-    struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+// 배열 출력 함수
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
 }
 
-// 전위 순회 (Preorder Traversal) 함수 (링크)
-void preorderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        printf("%d ", root->data);
-        preorderTraversal(root->left);
-        preorderTraversal(root->right);
+// 두 정수의 위치를 바꾸는 함수
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// 주어진 노드와 그 자식 노드들을 비교하여 힙 성질을 만족하게 만드는 함수
+void heapify(int arr[], int n, int i) {
+    int largest = i;      // 루트
+    int left = 2 * i + 1; // 왼쪽 자식
+    int right = 2 * i + 2; // 오른쪽 자식
+
+    // 왼쪽 자식이 부모보다 큰 경우
+    if (left < n && arr[left] > arr[largest])
+        largest = left;
+
+    // 오른쪽 자식이 현재 가장 큰 값보다 큰 경우
+    if (right < n && arr[right] > arr[largest])
+        largest = right;
+
+    // 가장 큰 값이 루트가 아니라면 바꾸고 다시 heapify
+    if (largest != i) {
+        swap(&arr[i], &arr[largest]);
+        heapify(arr, n, largest);
     }
 }
 
-// 중위 순회 (Inorder Traversal) 함수 (링크)
-void inorderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        inorderTraversal(root->left);
-        printf("%d ", root->data);
-        inorderTraversal(root->right);
+// 새로운 원소를 힙에 추가하는 함수
+void insertHeap(int arr[], int n) {
+    int i = n;
+    // 새로운 원소가 부모보다 큰 경우 계속 위치를 바꿈
+    while (i && arr[(i - 1) / 2] < arr[i]) {
+        swap(&arr[i], &arr[(i - 1) / 2]);
+        i = (i - 1) / 2;
     }
 }
 
-// 후위 순회 (Postorder Traversal) 함수 (링크)
-void postorderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        postorderTraversal(root->left);
-        postorderTraversal(root->right);
-        printf("%d ", root->data);
+// 배열로부터 최대 힙을 구성하는 함수
+void buildHeap(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        insertHeap(arr, i);
+        printArray(arr, i + 1); // 현재 상태 출력
     }
 }
 
-// 배열로 표현한 트리 전위 순회 함수
-void ArraypreorderTraversal(struct TreeNode* arr, int index, int size) {
-    if (index < size && arr[index].data != 0) {
-        printf("%d ", arr[index].data);
-        ArraypreorderTraversal(arr, 2 * index + 1, size); // 왼쪽 자식 노드
-        ArraypreorderTraversal(arr, 2 * index + 2, size); // 오른쪽 자식 노드
-    }
-}
+// 힙 정렬 함수
+void heapSort(int arr[], int n) {
+    buildHeap(arr, n);  // 먼저 최대 힙을 구성
 
-// 배열로 표현한 트리 중위 순회 함수
-void ArrayinorderTraversal(struct TreeNode* arr, int index, int size) {
-    if (index < size && arr[index].data != 0) {
-        ArrayinorderTraversal(arr, 2 * index + 1, size); // 왼쪽 자식 노드
-        printf("%d ", arr[index].data);
-        ArrayinorderTraversal(arr, 2 * index + 2, size); // 오른쪽 자식 노드
-    }
-}
-
-// 배열로 표현한 트리 후위 순회 함수
-void ArraypostorderTraversal(struct TreeNode* arr, int index, int size) {
-    if (index < size && arr[index].data != 0) {
-        ArraypostorderTraversal(arr, 2 * index + 1, size); // 왼쪽 자식 노드
-        ArraypostorderTraversal(arr, 2 * index + 2, size); // 오른쪽 자식 노드
-        printf("%d ", arr[index].data);
+    for (int i = n - 1; i > 0; i--) {
+        swap(&arr[0], &arr[i]);  // 루트(가장 큰 값)와 마지막 원소를 바꿈
+        heapify(arr, i, 0);      // 나머지 원소로 다시 힙을 구성
+        printArray(arr, i);      // 현재 상태 출력
     }
 }
 
 int main() {
-    // 링크로 표현한 트리 생성
-    struct TreeNode* root = createNode(1);
-    root->left = createNode(2);
-    root->right = createNode(7);
-    root->left->left = createNode(3);
-    root->left->right = createNode(6);
-    root->right->left = createNode(8);
-    root->right->right = createNode(9);
-    root->left->left->left = createNode(4);
-    root->left->left->right = createNode(5);
-    root->right->right->left = createNode(10);
-    root->right->right->right = createNode(11);
-
-    printf("<Linked Tree>\n");
-    printf("전위 순회");
-    preorderTraversal(root);
-    printf("\n\n");
-
-    printf("중위 순회");
-    inorderTraversal(root);
-    printf("\n\n");
-
-    printf("후위 순회");
-    postorderTraversal(root);
-    printf("\n\n");
-
-    // 배열로 표현한 트리
-    struct TreeNode arr[] = {
-        {1},
-        {2}, {7},
-        {3}, {6}, {8}, {9},
-        {4}, {5}, {0}, {0}, {0}, {0}, {10}, {11}
-    };
-
-    int size = sizeof(arr) / sizeof(arr[0]);
-
-    printf("<Array Tree>\n");
-    printf("전위 순회");
-    ArraypreorderTraversal(arr, 0, size);
-    printf("\n\n");
-
-    printf("중위 순회");
-    ArrayinorderTraversal(arr, 0, size);
-    printf("\n\n");
-
-    printf("후위 순회");
-    ArraypostorderTraversal(arr, 0, size);
-    printf("\n\n");
-
+    int arr[SIZE] = { 34, 12, 76, 59, 32, 55, 88, 26, 16, 79, 34, 85, 29, 78, 41, 56, 86 };
+    heapSort(arr, SIZE); // 힙 정렬 실행
+    printArray(arr, SIZE); // 추가된 부분: 정렬된 배열 출력
     return 0;
 }

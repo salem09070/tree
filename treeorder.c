@@ -130,7 +130,7 @@ void dfs_mat(graphType_mat* g, int v, int key) {
             printf("%d ", v);
 
             if (v == key) {
-                printf("\nFound key node! Visited nodes: %d\n", v);
+                printf("\n찾기 완료! 방문노드수: %d\n", v);
                 break;
             }
 
@@ -156,7 +156,7 @@ void bfs_mat(graphType_mat* g, int v, int key) {
             printf("%d ", v);
 
             if (v == key) {
-                printf("\nFound key node! Visited nodes: %d\n", v);
+                printf("\n찾기 완료! 방문노드수: %d\n", v);
                 break;
             }
 
@@ -207,22 +207,22 @@ int main() {
     int menu;
     while (1) {
         printf("==========\n");
-        printf("1. DFS\n");
-        printf("2. BFS\n");
-        printf("3. Exit\n");
+        printf("1. 깊이 우선탐색\n");
+        printf("2. 너비 우선탐색\n");
+        printf("3. 종료\n");
         printf("==========\n");
-        printf("Enter the menu: ");
+        printf("메뉴 선택: ");
         scanf("%d", &menu);
 
         int startNode, key;
         switch (menu) {
         case 1:
-            printf("Enter the start Node's number and key of search: ");
+            printf("시작 번호와 탐색할 값 입력: ");
             scanf("%d %d", &startNode, &key);
             dfs_mat(g, startNode, key);
             break;
         case 2:
-            printf("Enter the start Node's number and key of search: ");
+            printf("시작 번호와 탐색할 값 입력: ");
             scanf("%d %d", &startNode, &key);
             bfs_mat(g, startNode, key);
             break;
@@ -231,7 +231,7 @@ int main() {
             exit(1);
             break;
         default:
-            printf("Invalid input. Try again: ");
+            printf("잘못된 값입니다. 다시 입력해주세요: ");
             break;
         }
     }

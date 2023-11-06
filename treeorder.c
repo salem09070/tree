@@ -117,7 +117,7 @@ void kruskal(GraphType* g)
 		uset = set_find(e.start);		// 정점 u의 집합 번호 
 		vset = set_find(e.end);		// 정점 v의 집합 번호
 		if (uset != vset) {			// 서로 속한 집합이 다르면
-			printf("Edge (%d,%d) Select %d\n", e.start, e.end, i+1);
+			printf("Edge (%d,%d) %d선택\n", e.start, e.end, i+1);
 			edge_accepted++;
 			set_union(uset, vset);	// 두개의 집합을 합친다.
 		}

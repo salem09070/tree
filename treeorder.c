@@ -131,22 +131,25 @@ void kruskal_minheap(GraphType* g) {
 	struct edge e;
 
 	set_init(g->n);
-	buildHeap(g->edges, g->n);
+	int heap_size = g->n;  // 별도의 힙 크기 변수
+	buildHeap(g->edges, heap_size);
 
 	printf("크루스칼 최소 신장 트리 알고리즘 (Min Heap 사용)\n");
 	int i = 0;
+
 	while (edge_accepted < (g->n) - 1) {
-		e = extractMin(g->edges, &g->n);
+		e = extractMin(g->edges, &heap_size);  // 힙 크기 변수 사용
 		uset = set_find(e.start);
 		vset = set_find(e.end);
 		if (uset != vset) {
-			printf("Edge (% d, % d) select %d\n", e.start, e.end, i+1);
+			printf("Edge (%d, %d) %d선택\n", e.start, e.end,i+1);
 			edge_accepted++;
 			set_union(uset, vset);
 		}
 		i++;
 	}
 }
+
 
 int main(void)
 {

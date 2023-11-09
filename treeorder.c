@@ -1,67 +1,81 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
+#include <limits.h>
 
-typedef struct TreeNode {
-	int data;
-	struct TreeNode* left, * right;
-}TreeNode;
+#define TRUE 1
+#define FALSE 0
+#define MAX_VERTICES   100   
+#define INF   1000000   /* 무한대 (연결이 없는 경우) */
 
-void main()
-	{ TreeNode * n1, *n2, *n3 ,*n4, *n5 ,*n6 ,*n7,*n8,*n9,*n10,*n11, *n12, *n13, *n14, *n15;
-		n1 = (TreeNode*)malloc(sizeof(TreeNode));
-		n2 = (TreeNode*)malloc(sizeof(TreeNode));
-		n3 = (TreeNode*)malloc(sizeof(TreeNode));
-		n4 = (TreeNode*)malloc(sizeof(TreeNode));
-		n5 = (TreeNode*)malloc(sizeof(TreeNode));
-		n6 = (TreeNode*)malloc(sizeof(TreeNode));
-		n7 = (TreeNode*)malloc(sizeof(TreeNode));
-		n8 = (TreeNode*)malloc(sizeof(TreeNode));
-		n9 = (TreeNode*)malloc(sizeof(TreeNode));
-		n10 = (TreeNode*)malloc(sizeof(TreeNode));
-		n11 = (TreeNode*)malloc(sizeof(TreeNode));
-		n12 = (TreeNode*)malloc(sizeof(TreeNode));
-		n13 = (TreeNode*)malloc(sizeof(TreeNode));
-		n14= (TreeNode*)malloc(sizeof(TreeNode));
-		n15 = (TreeNode*)malloc(sizeof(TreeNode));
+typedef struct GraphType {
+    int n;   // 정점의 개수
+    int weight[MAX_VERTICES][MAX_VERTICES];
+} GraphType;
+
+int distance[MAX_VERTICES];/* 시작정점으로부터의 최단경로 거리 */
+int found[MAX_VERTICES];      /* 방문한 정점 표시 */
 
 
-		n1->data = 1;
-		n2->data = 2;
-		n3->data = 7;
-		n4->data = 3;
-		n5->data = 6;
-		n6->data = 8;
-		n7->data = 9;
-		n8->data = 4;
-		n9->data = 5;
-		n10->data = NULL;
-		n11->data = NULL;
-		n12->data = NULL;
-		n13->data = NULL;
-		n14->data = 10;
-		n15->data = 11;
-
-		n1->left = n2;
-		n2->left = n4;
-		n3->left = n6;
-		n4->left = n8;
-		n5->left = n10;
-		n6->left = n12;
-		n7->left = n14;
-
-		n1->right = n3;
-		n2->right = n5;
-		n3->right = n7;
-		n4->right = n9;
-		n5->right = n11;
-		n6->right = n13;
-		n7->right = n15;
-}
-preorder(x) {
-	if (x != NULL) {
-		printf(% d, x);
-
-	}
+int choose(int distance[], int n, int found[])
+{
+    int i, min, minpos;
+    min = INT_MAX;
+    minpos = -1;
+    for (i = 0; i < n; i++)
+        if (distance[i] < min && !found[i]) {
+            min = distance[i];
+            minpos = i;
+        }
+    return minpos;
 }
 
+void shortest_path(GraphType* g, int start)
+{
+    int i, u, w;
+    for (i = 0; i < g->n; i++) /* 초기화 */
+    {
+        distance[i] = g->weight[start][i];
+        found[i] = FALSE;
+    }
+    found[start] = TRUE;    /* 시작 정점 방문 표시 */
+    distance[start] = 0;
+    for (i = 0; i < g->n - 1; i++) {
+        printf("Distance: \n");
+        for (int j = 0; j < g->n; j++)
+            if (distance[j] == INF)
+                printf(" * ");
+            else
+                printf("%d ", distance[j]);
+        printf("\n");
+
+        printf("Found: ");
+        for (int j = 0; j < g->n; j++)
+            printf("%d ", found[j]);
+        printf("\n");
+        u = choose(distance, g->n, found);
+        found[u] = TRUE;
+        for (w = 0; w < g->n; w++)
+            if (!found[w])
+                if (distance[u] + g->weight[u][w] < distance[w])
+                    distance[w] = distance[u] + g->weight[u][w];
+    }
+}
+
+int main(void)
+{
+    GraphType g = { 10,{
+
+ { 0, 3, INF, INF, INF, 11, 12, INF, INF, INF },
+ { 3, 0, 5, 4, 1, 7, 8, INF, INF, INF },
+ { INF, 5, 0, 2, INF, INF, 6, 5, INF, INF },
+ { INF, 4, 2, 0, 13, INF, INF, 14, INF, 16 },
+ { INF, 1, INF, 13, 0, 9, INF, INF, 18, 17 },
+ { 11, 7, INF, INF, 9, 0, INF, INF, INF, INF },
+ { 12, 8, 6, INF, INF, INF, 0, 13, INF, INF },
+ { INF, INF, 5, 14, INF, INF, 13, 0, INF, 15 },
+ { INF, INF, INF, INF, 18, INF, INF, INF, 0, 10 },
+ { INF, INF, INF, 16, 17, INF, INF, INF, 15, 10, 0 }
+    } };
+    shortest_path(&g, 0);
+    return 0;
+}

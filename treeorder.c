@@ -1,67 +1,108 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
+#include <time.h>
 
-typedef struct TreeNode {
-	int data;
-	struct TreeNode* left, * right;
-}TreeNode;
+#define SWAP(x, y, t) ( (t)=(x), (x)=(y), (y)=(t) )
+#define MAX_SIZE 20
 
-void main()
-	{ TreeNode * n1, *n2, *n3 ,*n4, *n5 ,*n6 ,*n7,*n8,*n9,*n10,*n11, *n12, *n13, *n14, *n15;
-		n1 = (TreeNode*)malloc(sizeof(TreeNode));
-		n2 = (TreeNode*)malloc(sizeof(TreeNode));
-		n3 = (TreeNode*)malloc(sizeof(TreeNode));
-		n4 = (TreeNode*)malloc(sizeof(TreeNode));
-		n5 = (TreeNode*)malloc(sizeof(TreeNode));
-		n6 = (TreeNode*)malloc(sizeof(TreeNode));
-		n7 = (TreeNode*)malloc(sizeof(TreeNode));
-		n8 = (TreeNode*)malloc(sizeof(TreeNode));
-		n9 = (TreeNode*)malloc(sizeof(TreeNode));
-		n10 = (TreeNode*)malloc(sizeof(TreeNode));
-		n11 = (TreeNode*)malloc(sizeof(TreeNode));
-		n12 = (TreeNode*)malloc(sizeof(TreeNode));
-		n13 = (TreeNode*)malloc(sizeof(TreeNode));
-		n14= (TreeNode*)malloc(sizeof(TreeNode));
-		n15 = (TreeNode*)malloc(sizeof(TreeNode));
+void selection_sort(int list[], int n, int* compare_count, int* move_count, int iteration)
+{
+    int i, j, least, temp;
+    *compare_count = 0;
+    *move_count = 0;
 
-
-		n1->data = 1;
-		n2->data = 2;
-		n3->data = 7;
-		n4->data = 3;
-		n5->data = 6;
-		n6->data = 8;
-		n7->data = 9;
-		n8->data = 4;
-		n9->data = 5;
-		n10->data = NULL;
-		n11->data = NULL;
-		n12->data = NULL;
-		n13->data = NULL;
-		n14->data = 10;
-		n15->data = 11;
-
-		n1->left = n2;
-		n2->left = n4;
-		n3->left = n6;
-		n4->left = n8;
-		n5->left = n10;
-		n6->left = n12;
-		n7->left = n14;
-
-		n1->right = n3;
-		n2->right = n5;
-		n3->right = n7;
-		n4->right = n9;
-		n5->right = n11;
-		n6->right = n13;
-		n7->right = n15;
-}
-preorder(x) {
-	if (x != NULL) {
-		printf(% d, x);
-
-	}
+    for (i = 0; i < n - 1; i++) {
+        least = i;
+        for (j = i + 1; j < n; j++) {
+            (*compare_count)++;
+            if (list[j] < list[least]) least = j;
+        }
+        SWAP(list[i], list[least], temp);
+        (*move_count)++;
+        if (iteration == 0) { // 첫 번째 정렬 과정 출력
+            for (int k = 0; k < n; k++) {
+                printf("%d ", list[k]);
+            }
+            printf("\n");
+        }
+    }
 }
 
+void insertion_sort(int list[], int n, int* compare_count, int* move_count, int iteration) {
+    int i, j, key;
+    *compare_count = 0;
+    *move_count = 0;
+
+    for (i = 1; i < n; i++) {
+        key = list[i];
+        for (j = i - 1; j >= 0 && list[j] > key; j--) {
+            list[j + 1] = list[j];
+            (*compare_count)++;
+            (*move_count)++;
+        }
+        list[j + 1] = key;
+        (*move_count)++;
+        if (iteration == 0) { // 첫 번째 정렬 과정 출력
+            for (int k = 0; k < n; k++) {
+                printf("%d ", list[k]);
+            }
+            printf("\n");
+        }
+    }
+}
+
+void bubble_sort(int list[], int n, int* compare_count, int* move_count, int iteration) {
+    int i, j, temp;
+    *compare_count = 0;
+    *move_count = 0;
+
+    for (i = n - 1; i > 0; i--) {
+        for (j = 0; j < i; j++){ //앞뒤 레코드 비교후 교체
+            (*compare_count)++;
+            if (list[j] > list[j + 1]) {
+                SWAP(list[j], list[j + 1], temp);
+                (*move_count)++;
+            }
+        }
+        if (iteration == 0) { // 첫 번째 정렬 과정 출력
+            for (int k = 0; k < n; k++) {
+                printf("%d ", list[k]);
+            }
+            printf("\n");
+        }
+    }
+}
+
+
+
+int main(void)
+{
+    int list[MAX_SIZE], n, i;
+    int total_compare = 0, total_move = 0;
+    int compare_count, move_count;
+
+    n = MAX_SIZE;
+    srand(time(NULL));
+
+    for (int count = 0; count < 20; count++) {
+        for (i = 0; i < n; i++) {
+            list[i] = rand() % 100;
+        }
+
+
+        if (count == 0) { // 첫 번째 실행에서 난수 배열 및 정렬 과정 출력
+            printf("첫 번째 난수 배열 정렬 과정: 버블 정렬\n");
+        }
+
+        bubble_sort(list, n, &compare_count, &move_count, count);
+        total_compare += compare_count;//총 비교 횟수 
+        total_move += move_count;//총 이동 횟수
+
+    }
+
+    printf("평균 이동 횟수: %f\n", (double)total_move / 20);
+    printf("평균 비교 횟수: %f\n", (double)total_compare / 20);
+  
+
+    return 0;
+}

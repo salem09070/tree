@@ -91,8 +91,8 @@ int main(void)
 
 
         if (count == 0) { // 첫 번째 실행에서 난수 배열 및 정렬 과정 출력
-            printf("첫 번째 난수 배열 정렬 과정: 선택 정렬\n");
-            printf("첫 번째 난수 배열 정렬 과정: 삽입 정렬\n");
+            //printf("첫 번째 난수 배열 정렬 과정: 선택 정렬\n");
+            //printf("첫 번째 난수 배열 정렬 과정: 삽입 정렬\n");
             printf("첫 번째 난수 배열 정렬 과정: 버블 정렬\n");
         }
         //selection_sort(list, n, &compare_count, &move_count, count);

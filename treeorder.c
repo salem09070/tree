@@ -14,7 +14,7 @@ inc_insertion_sort(int list[], int first, int last, int gap) {
         list[j + gap] = key;
     }
 }
-// 삽입 정렬을 사용하여 셸 정렬 알고리즘 구현
+// 삽입 정렬을 사용하여 셸 정렬 알고리즘 구현.
 void shell_sort(int list[], int n) {
     int i, gap;
     for (gap = n / 2; gap > 0; gap = gap / 2) {

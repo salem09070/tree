@@ -1,67 +1,110 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <memory.h>
+#include <time.h>
 
-typedef struct TreeNode {
-	int data;
-	struct TreeNode* left, * right;
-}TreeNode;
+#define MAX_SIZE 20
 
-void main()
-	{ TreeNode * n1, *n2, *n3 ,*n4, *n5 ,*n6 ,*n7,*n8,*n9,*n10,*n11, *n12, *n13, *n14, *n15;
-		n1 = (TreeNode*)malloc(sizeof(TreeNode));
-		n2 = (TreeNode*)malloc(sizeof(TreeNode));
-		n3 = (TreeNode*)malloc(sizeof(TreeNode));
-		n4 = (TreeNode*)malloc(sizeof(TreeNode));
-		n5 = (TreeNode*)malloc(sizeof(TreeNode));
-		n6 = (TreeNode*)malloc(sizeof(TreeNode));
-		n7 = (TreeNode*)malloc(sizeof(TreeNode));
-		n8 = (TreeNode*)malloc(sizeof(TreeNode));
-		n9 = (TreeNode*)malloc(sizeof(TreeNode));
-		n10 = (TreeNode*)malloc(sizeof(TreeNode));
-		n11 = (TreeNode*)malloc(sizeof(TreeNode));
-		n12 = (TreeNode*)malloc(sizeof(TreeNode));
-		n13 = (TreeNode*)malloc(sizeof(TreeNode));
-		n14= (TreeNode*)malloc(sizeof(TreeNode));
-		n15 = (TreeNode*)malloc(sizeof(TreeNode));
+int sorted[MAX_SIZE];
+int total_compare = 0, total_move = 0;
 
-
-		n1->data = 1;
-		n2->data = 2;
-		n3->data = 7;
-		n4->data = 3;
-		n5->data = 6;
-		n6->data = 8;
-		n7->data = 9;
-		n8->data = 4;
-		n9->data = 5;
-		n10->data = NULL;
-		n11->data = NULL;
-		n12->data = NULL;
-		n13->data = NULL;
-		n14->data = 10;
-		n15->data = 11;
-
-		n1->left = n2;
-		n2->left = n4;
-		n3->left = n6;
-		n4->left = n8;
-		n5->left = n10;
-		n6->left = n12;
-		n7->left = n14;
-
-		n1->right = n3;
-		n2->right = n5;
-		n3->right = n7;
-		n4->right = n9;
-		n5->right = n11;
-		n6->right = n13;
-		n7->right = n15;
-}
-preorder(x) {
-	if (x != NULL) {
-		printf(% d, x);
-
-	}
+// 전체 배열을 출력하는 함수
+void print_array(int list[], int size) {
+    printf("[");
+    for (int i = 0; i < size; i++) {
+        printf("%d", list[i]);
+        if (i < size - 1) printf(", ");
+    }
+    printf("]\n");
 }
 
+// 두 부분 배열을 합병하는 함수
+void merge(int list[], int left, int mid, int right, int* compare_count, int* move_count, int is_first_iteration) {
+    int i = left, j = mid + 1, k = left;
+    while (i <= mid && j <= right) {
+        (*compare_count)++;
+        if (list[i] <= list[j]) {
+            sorted[k++] = list[i++];
+        }
+        else {
+            sorted[k++] = list[j++];
+        }
+        (*move_count)++;
+    }
+
+    while (i <= mid) {
+        sorted[k++] = list[i++];
+        (*move_count)++;
+    }
+    while (j <= right) {
+        sorted[k++] = list[j++];
+        (*move_count)++;
+    }
+
+    for (int l = left; l <= right; l++) {
+        list[l] = sorted[l];
+    }
+
+    // 첫 번째 반복에서만 배열의 상태 출력
+    if (is_first_iteration) {
+        print_array(list, MAX_SIZE);
+    }
+}
+
+// 반복적 병합 정렬 함수
+void iterative_merge_sort(int list[], int size, int* compare_count, int* move_count, int is_first_iteration) {
+    for (int width = 1; width < size; width *= 2) {
+        for (int i = 0; i < size; i = i + 2 * width) {
+            int left = i;
+            int mid = i + width - 1;
+            int right = i + 2 * width - 1;
+            if (right >= size) right = size - 1;
+            if (mid >= size) break; // 배열 크기를 초과하는 너비를 피하기 위함
+            merge(list, left, mid, right, compare_count, move_count, is_first_iteration);
+        }
+        // 각 전체 패스 후, 첫 번째 반복에서 배열을 출력
+        if (is_first_iteration) {
+            print_array(list, size);
+        }
+    }
+}
+
+int main(void) {
+    int list[MAX_SIZE];
+    srand(time(NULL));
+
+    for (int count = 0; count < 20; count++) {
+        // 각 반복마다 비교 및 이동 횟수를 초기화
+        int compare_count = 0, move_count = 0;
+
+        // 각 반복마다 랜덤 숫자로 리스트 채우기
+        for (int i = 0; i < MAX_SIZE; i++) {
+            list[i] = rand() % 100;
+        }
+
+        // 첫 번째 반복에서만 원본 및 정렬된 배열 출력
+        if (count == 0) {
+            printf("Original list:\n");
+            print_array(list, MAX_SIZE);
+            printf("Merge Sort\n");
+        }
+
+        // 반복적 병합 정렬 수행
+        iterative_merge_sort(list, MAX_SIZE, &compare_count, &move_count, count == 0);
+
+        // 첫 번째 반복에서만 정렬된 배열 출력
+        if (count == 0) {
+            printf("Sorted list:\n");
+            print_array(list, MAX_SIZE);
+        }
+
+        // 총 비교 및 이동 횟수에 더하기
+        total_compare += compare_count;
+        total_move += move_count;
+    }
+
+    // 평균 비교 및 이동 횟수 계산 및 출력
+    printf("평균 비교 횟수: %f\n", (double)total_compare / 20);
+    printf("평균 이동 횟수: %f\n", (double)total_move / 20);
+
+    return 0;
+}

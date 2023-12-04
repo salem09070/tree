@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
+//ªÁ¿Ã¡Ó 20
 #define MAX_SIZE 20
 
 int sorted[MAX_SIZE];
